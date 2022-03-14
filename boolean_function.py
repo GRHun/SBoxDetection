@@ -128,6 +128,18 @@ def is_bf_balanced(v):
     return True
 
 
+def derivative(v,u):
+    """
+    Return the derivative in direction of u
+    sage: u – either an integer or a tuple/list of F2 elements of length equal to the number of variables
+    #todo:
+    """
+    res = []
+    for i in range(len(v)):
+        tmp = v[i^u] ^ v[i]
+        res.append(tmp)
+    return res 
+
 def main():
     v = [0,1,0,0,0,1,1,1]
     n = 4

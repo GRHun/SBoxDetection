@@ -27,7 +27,7 @@ def get_coordinate_function(S,N,M):
         res.append(coordinate_func)
     return res
 
-def get_all_bflc(S, N, M):         
+def get_all_bflc(S, N, M):
     """返回S盒坐标函数的所有非零线性组合
     """
     n = 2 ** M
@@ -56,7 +56,8 @@ def nonlinearity(S, N, M):
 
 def is_balanced(S, N, M):
     """
-    返回S盒是否具有平衡性"""
+    返回S盒是否具有平衡性
+    任意非零的坐标函数的线性组合都是平衡的"""
     bflc = get_all_bflc(S,N,M)
     flag = True
     for i in bflc:
@@ -64,29 +65,73 @@ def is_balanced(S, N, M):
             flag = False
     return flag
 
+def differential_distribution_table(S,N,M):           
+    """返回S盒的差分分布表
+    格式是列表"""
+    # 初始化一个table
+    DDT = [[0 for i in range(pow(2,M))] for j in range(pow(2,N))]
+    # the table, In is the XOR of the in-going pair, Out is the resulting XOR,
+    # the table returns the number of occurences
+    for a in range(pow(2,N)):
+        for b in range(pow(2,M)):
+            for z in range(pow(2,N)):
+                p1 = z ^ a
+                res = S[p1] ^ S[z]
+                if (res == b):
+                    DDT[a][b] += 1
+    return DDT
+
+def differential_uniformity(S, N, M):
+    """
+    返回差分均匀度
+    """
+    DDT = differential_distribution_table(S,N,M)
+    # 非零差分，所以第一个手动去掉
+    DDT[0][0]=0
+    result=[]
+    for i in DDT:
+        result.append(max(list(map(abs,i))))
+    return max(result)
+
+def robustness(S,N,M):
+    """
+    返回S盒的鲁棒性
+    𝜂(𝑆) = (1 − 𝜎(𝑆)/2𝑛)(1 − 𝛿(𝑆)/2𝑛)
+    要使差分分布表的第一列包含尽可能少的非零元素
+    """
+    DDT = differential_distribution_table(S,N,M)
+    diffuniformity = differential_uniformity(S,M,N)
+    sum = 0
+    for i in DDT:
+        if(i[0] == 0):
+            sum += 0
+        else:
+            sum += 1
+    res = (1-sum/(2**N))*(1-diffuniformity/(2**N))
+    return res
+    
 def main():
     
     S=[3,8,15,1,10,6,5,11,14,13,4,2,7,0,9,12]
     N, M = get_size(S)
 
-    res = get_coordinate_function(S,N,M)
+    #* 坐标函数测试
+    # res = get_coordinate_function(S,N,M)
+    # for i in range(len(res)):
+    #     # print(i,"\t",ANF(res[i])[0])
+    #     print(i,"\t",res[i])
+    
+    #* 差分分布表测试
+    res = differential_distribution_table(S,N,M)
+    for i in res:
+        print(i)
 
-    for i in range(len(res)):
-        # print(i,"\t",ANF(res[i])[0])
-        print(i,"\t",res[i])
-
+    #* 布尔函数测试
     B = [1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0]
-    print(is_bf_balanced(B))
+    # print(is_bf_balanced(B))
 
-    """ test
-    input:
-    S=[3,8,15,1,10,6,5,11,14,13,4,2,7,0,9,12]
-    output:
-    0   [1, 0, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 0, 1, 0]
-    1   [1, 0, 1, 0, 1, 1, 0, 1, 1, 0, 0, 1, 1, 0, 0, 0]
-    2   [0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 1, 0, 1, 0, 0, 1]
-    3   [0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1]
-    """
+    print("\ndone.")
+
 
 
 if __name__ == "__main__":
