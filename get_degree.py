@@ -1,10 +1,11 @@
-def name():
+def get_max_degree():
     pass
+
+    
 
 def main():
     v = [0,1,0,0,0,1,1,1]
-    n = 4
-    name()
+    get_max_degree()
 
 
 if __name__ == "__main__":

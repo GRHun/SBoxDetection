@@ -1,7 +1,7 @@
 import math
 
 def ANF(v):             
-    """函数返回布尔函数的代数标准形式str，与代数最大次数int
+    """函数返回布尔函数的字符串格式代数标准形式和代数次数deg f
     param: v - 布尔函数的真值表
     e.g. : v = [0,1,0,0,0,1,1,1]
     """
@@ -27,13 +27,11 @@ def ANF(v):
                 index1 = (2**k)*i+j+(2**(k-1))
                 var2 = v[index1]
                 v[index1] = (var1 + var2)%2
-    print("V:\t" ,v)
+    # print("V:\t" ,v)
 
-
-    
-    flag = 0
+    # 转换成ANF的形式，格式为字符串 ，同时计算algebraic_degree   
+    flag, degree = 0, 0
     anf = ""
-    maxdegree = 0
 
     if (v[0] == 1):
         anf +="1"
@@ -45,9 +43,7 @@ def ANF(v):
             if (flag > 1):
                 anf += " + "
             a = bin(i)[2:]
-            temp = 0
-            count = 0       
-            #计算最大度数
+            temp, count = 0, 0      
             for j in range(len(a)-1,-1,-1):
                 temp += 1
                 if (a[j] == '1' and temp != 0):
@@ -55,9 +51,10 @@ def ANF(v):
                     count +=1
                 if (temp == 0):
                     anf += "1"
-                if (count>maxdegree):
-                    maxdegree = count
-    return (anf,maxdegree)
+                if (count > degree):
+                    degree = count
+    return (anf, degree)
+
 
 def main(ANF):
     #truth table
@@ -67,8 +64,13 @@ def main(ANF):
     (anf,degree)=ANF(v)
     print("ANF\t",anf)
     print("degree\t",degree)
-    # a =[1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 0, 1, 1, 1, 1, 1, 1, 1, 0, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0, 1, 1, 1, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 1, 1, 0, 1, 1, 0, 1, 1, 1, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 1, 1, 1, 0, 1, 1, 0, 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0]
 
+    """
+    in:     v = [0,1,0,0,0,1,1,1]    
+    
+    out:    ANF      x0 + x0x1 + x1x2
+            degree   2
+    """
 
 if __name__ == "__main__":
     main(ANF)
