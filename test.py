@@ -1,9 +1,11 @@
+from get_size import get_size
+
 def name():
     pass
 
 def main():
-    v = [0,1,0,0,0,1,1,1]
-    n = 4
+    S=[3,8,15,1,10,6,5,11,14,13,4,2,7,0,9,12]
+    N, M = get_size(S)
     name()
 
 
