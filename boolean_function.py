@@ -1,5 +1,10 @@
 import math
 
+def get_n(v): 
+    """返回布尔函数的元数/输入位数"""
+    n = int(math.log(len(v), 2))
+    return n
+
 def fwt(v): 
     """
     快速Walsh变换，返回walsh spectrum
@@ -46,6 +51,11 @@ def fwt(v):
         h *= 2
     return wht
 
+def binary(num, length):            
+    """将输入数字转化成指定bits长的数据
+    """
+    binary_string_list = list(format(num, '0{}b'.format(length)))
+    return "".join(binary_string_list)
 
 def ANF(v):             
     """函数返回布尔函数的字符串格式代数标准形式和代数次数deg f
@@ -100,26 +110,24 @@ def ANF(v):
                     degree = count
     return (anf, degree)
 
-
-def nonliearity_bf(v, n):
+def nonliearity_bf(v):
     """返回布尔函数的非线性度int
     para: v 真值表
-          n n元布尔函数
     """
+    n = get_n(v)
     abs_wht = list(map(abs,fwt(v)))
     nonliearity = (2**(n-1))-max(abs_wht)/2
     # 公式 dH = 2^(n-1) - max|Sf(w)|/2 
     
     return nonliearity
 
-
-def is_bf_sbent(v, n):
+def is_bf_bent(v):
+    """返回布尔函数是否为bent"""
+    n = get_n(v)
     if n % 2 != 0:
         return False
-    
     elif nonliearity_bf(v) == (2**(n-1)) * (1-2**((-1)*(n/2))):
         return True
-
 
 def is_bf_balanced(v):
     """返回布尔函数是否为平衡"""
@@ -127,6 +135,27 @@ def is_bf_balanced(v):
             return False
     return True
 
+def is_bf_rotation_symmetric(v):
+    """
+    返回布尔函数是否为旋转对称函数
+    一个布尔函数称为旋转对称的当且仅当对其输入向量进行循环移位时, 输出值保值不变"""
+    #todo: 再看一卡
+    n = get_n(v)
+    flag = True
+    num = []
+    for i in range(n+1):
+        num.append(2**i-1)
+    for i in num:
+        num = binary(i, n)
+        temp = v[i]
+        for j in range(1,n,1):
+            x = num[-j:]+num[:-j]
+            if v[int(x,2)] == temp:
+                pass
+            else:
+                flag=False
+                return flag
+    return flag
 
 def derivative(v,u):
     """
@@ -142,9 +171,9 @@ def derivative(v,u):
 
 def main():
     v = [0,1,0,0,0,1,1,1]
-    n = 4
+    n = int(math.log(len(v), 2))
     x = (2**(n-1)) * (1-2**((-1)*(n/2)))
-    print(x)
+    print(is_bf_rotation_symmetric(v,n))
 
 if __name__ == "__main__":
     main()
