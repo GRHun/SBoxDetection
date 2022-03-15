@@ -169,6 +169,35 @@ def derivative(v,u):
         res.append(tmp)
     return res 
 
+def autocorrelation(v):
+    """返回布尔函数关于a 的自相关因数autocorrelation coefficient"""
+    #todo 增加默认返回全部，如果设置参数了返回特定的
+    res = []
+    for a in range(len(v)):
+        sum = 0
+        for x in range(len(v)):
+            if ((v[x ^ a] ^ v[x]) == 0):
+                sum += 1		
+            else:
+                sum -= 1	
+        res.append(sum)
+    return res
+
+def has_bf_linear_structure(v):
+    """Return True if this function has a linear structure.
+    An n-variable Boolean function f has a linear structure 
+    if there exists a nonzero a∈Fn2 such that f(x⊕a)⊕f(x) is a constant function."""
+    flag = 1
+    for a in range(1, len(v)):
+        cons = v[0] ^ v[a]
+        for x in range(1, len(v)):
+            tmp = v[x] ^ v[x^a]
+            if cons != tmp:
+                flag = 0
+        if (x== len(v)-1) & (flag == 1):
+            return True
+    return False
+
 def main():
     v = [0,1,0,0,0,1,1,1]
     n = int(math.log(len(v), 2))
