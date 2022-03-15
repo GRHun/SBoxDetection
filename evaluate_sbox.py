@@ -93,6 +93,26 @@ def differential_uniformity(S, N, M):
         result.append(max(list(map(abs,i))))
     return max(result)
 
+def linear_approximation_table(S,M,N):
+    """
+    返回S盒的线性逼近表
+    """
+    # 初始化一个2^n x 2^m 的table
+    LAT = [[0 for i in range(2**M)] for j in range(2**N)]
+    for i in range(2**N):
+        for j in range(2**M):
+
+            count = 0
+            for k in range(len(S)):
+                in_masked = k & i
+                out_masked = S[k] & j
+                if(bin(in_masked).count("1")+bin(out_masked).count("1")) % 2 == 0:
+                    count += 1
+            res = count - (len(S)//2)
+            LAT[i][j] = res
+
+    return LAT
+
 def robustness(S,N,M):
     """
     返回S盒的鲁棒性
@@ -131,6 +151,21 @@ def has_linear_structure(S,N,M):
         if has_bf_linear_structure(i) ==True:
             return True
     return False
+
+def get_diff_branch_number(S,N,M):
+    """返回S盒的差分分枝数 differential branch number"""
+
+    # min{wt(a) +wt(b)|δS(a,b)!=0, a∈Fn2\{0}, b∈Fm2}.
+    DDT = differential_distribution_table(S,N,M)
+    res = []
+    for i in range(1, 2**N):
+        for j in range(1, 2**M):
+            if DDT[i][j] != 0:
+                tmp = str(bin(i)).count('1') + str(bin(j)).count('1')
+                res.append(tmp)
+    return min(res)
+
+
 
 def main():
     
