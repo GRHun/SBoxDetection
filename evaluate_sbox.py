@@ -130,7 +130,7 @@ def robustness(S,N,M):
     res = (1-sum/(2**N))*(1-diffuniformity/(2**N))
     return res
 
-def rotation_symmetric(S,N,M):
+def is_rotation_symmetric(S,N,M):
     """ 
     返回S盒是否具有旋转对称性
     rotation_symmetric
@@ -153,7 +153,7 @@ def has_linear_structure(S,N,M):
     return False
 
 def get_diff_branch_number(S,N,M):
-    """返回S盒的差分分枝数 differential branch number"""
+    """返回S盒的差分分支数 differential branch number"""
 
     # min{wt(a) +wt(b)|δS(a,b)!=0, a∈Fn2\{0}, b∈Fm2}.
     DDT = differential_distribution_table(S,N,M)

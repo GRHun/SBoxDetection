@@ -19,10 +19,13 @@ def get_all_bflc(S, N, M):
 
 
 def main():
-    S=[3,8,15,1,10,6,5,11,14,13,4,2,7,0,9,12]
+    # S=[3,8,15,1,10,6,5,11,14,13,4,2,7,0,9,12]
+    S = [7,6,0,4,2,5,1,3]
     # print(len(S))
     N, M = get_size(S)
-    a = get_all_bflc(S)
+    a = get_all_bflc(S,N,M)
+    for i in a:
+        print(i)
 
 
 if __name__ == "__main__":
