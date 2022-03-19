@@ -165,7 +165,33 @@ def get_diff_branch_number(S,N,M):
                 res.append(tmp)
     return min(res)
 
+def SAC(S,M,N):                     
+    """判断S盒是否满足完全雪崩准则
+    """
+    result =[[0 for i in range(N)] for j in range(M)]
+    slen = len(S)
+    for m in range(M):
+        mask = 2**m                         ##mask=00000001 00000010 00000100...
+        for i in range(slen):
+            testval = S[i]^S[i^mask]        ## i^mask 只改变1位
+            for n in range(N):
+                bitval = (testval>>n)&1     ##将结果右移n位，和1相与，看第m位的输出是否改变
+                result[m][n]+=bitval
+        result[m].reverse()                 ##将表反向
+    for i in range(M):
+        for j in range(N):
+            result[i][j] /= slen
+    # print_SAC(result,slen)                  ##将SAC表输出
+    return (result)                         ##将结果和s盒长度返回，用于归一化操作
 
+def term_number_distribution(S,N,M):
+    # N,M = get_size(S)
+    cbf = get_coordinate_function(S,N,M)
+    termnum = []
+    for i in cbf:
+        (a,b) = ANF(i)
+        termnum.append(a.count("+")+1)
+    return termnum
 
 def main():
     
@@ -191,9 +217,7 @@ def main():
     #* 是否有线性结构测试
     print(has_linear_structure(S,N,M))
 
-    print("\ndone.")
-
-
+    print("\nAll computing is done.")
 
 if __name__ == "__main__":
     main()
