@@ -165,6 +165,35 @@ def get_diff_branch_number(S,N,M):
                 res.append(tmp)
     return min(res)
 
+def boomerang_connectivity_table(S,N):
+    """返回S盒的回旋镖相关表  
+    暂时用定义写的"""
+    BCT = [[0 for i in range(2**N)] for j in range(2**N)]
+    for a in range(2**N):
+        for b in range(2**N):
+            for x in range(2**N):
+                tmp1 = S.index(S[x] ^ b)
+                tmp2 = S.index(S[x ^ a] ^ b)
+                res = tmp1 ^ tmp2
+                if (res == a):
+                    BCT[a][b] += 1
+    return BCT
+
+def boomerang_uniformity(S,N):
+    """
+    返回差分均匀度
+    """
+    BCT = boomerang_connectivity_table(S,N)
+    # 去掉第一行第一列
+    del BCT[0]
+    for i in BCT:
+        i[0] = 0
+
+    res = []
+    for i in BCT:
+        res.append(max(list(map(abs,i))))
+    return max(res)
+
 def SAC(S,M,N):                     
     """判断S盒是否满足完全雪崩准则
     """
