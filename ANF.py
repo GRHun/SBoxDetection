@@ -70,8 +70,6 @@ def main(ANF):
     print("\tANF:\t",anf,"\n\tdegree:\t",degree)
 
 
-
-
     """
     in:     v = [0,1,0,0,0,1,1,1]    
     
