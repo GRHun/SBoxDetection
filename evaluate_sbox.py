@@ -194,25 +194,30 @@ def boomerang_uniformity(S,N):
         res.append(max(list(map(abs,i))))
     return max(res)
 
-def SAC(S,M,N):                     
-    """判断S盒是否满足完全雪崩准则
+def SAC_table(S,N,M):
+    """返回S盒的完全雪崩准则概率表
     """
-    result =[[0 for i in range(N)] for j in range(M)]
-    slen = len(S)
-    for m in range(M):
-        mask = 2**m                         ##mask=00000001 00000010 00000100...
-        for i in range(slen):
-            testval = S[i]^S[i^mask]        ## i^mask 只改变1位
-            for n in range(N):
-                bitval = (testval>>n)&1     ##将结果右移n位，和1相与，看第m位的输出是否改变
-                result[m][n]+=bitval
-        result[m].reverse()                 ##将表反向
-    for i in range(M):
-        for j in range(N):
-            result[i][j] /= slen
-    # print_SAC(result,slen)                  ##将SAC表输出
-    return (result)                         ##将结果和s盒长度返回，用于归一化操作
+    result =[[0 for i in range(M)] for j in range(N)]
+    # 对第i 位取补, 计算第j位的输出的取补的概率
+    # 对于每一个输入比特取补，mask=00000001 00000010 00000100...
+    # 对第i位取补, 输出的f(x+ei)+f(x) 为结果testval.0<=i<n
+    for i in range(N):
+        mask = 2**i
+        for x in range(2**N):  #! 这里修改了范围，我认为x是每一个x
+            testval = S[x]^S[x^mask]
+            # testval里，如果第i位是1，就是取补了
+            # 对第j位输出，如果在i位输入取补时改变了，那么+1
+            for j in range(M):
+                # 将结果右移j位，和1相与，如果在i位输入取补时，第j位输出改变了就+1
+                bitval = (testval>>j)&1
+                result[i][j]+=bitval
+        #* 注意：这里的i，j行列排列都是0->i-1，和文献AES中列数排列是相反的
 
+    for i in range(N):
+        for j in range(M):
+            result[i][j] /=(2**M)
+    return result
+    
 def term_number_distribution(S,N,M):
     # N,M = get_size(S)
     cbf = get_coordinate_function(S,N,M)

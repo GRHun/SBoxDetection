@@ -63,15 +63,6 @@ def ANF(v):
     e.g. : v = [0,1,0,0,0,1,1,1]
     """
     n = int(math.log(len(v),2))
-    
-    # for i in range(n):
-    #     t = []
-    #     u = []
-    #     for j in range(2 ** (n - 1)):
-    #         t.append(v[2 * j])
-    #         u.append(v[2 * j + 1] ^ v[2 * j])
-    #     v = t + u
-    # print("V:\t" ,v)
 
     for k in range(1, n+1):
         # print("k",k)

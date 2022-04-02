@@ -1,21 +1,24 @@
 
-
-def SAC(S,M,N):                     
+# SAC1.py  0.03s user 0.01s system 79% cpu 0.059 total
+def SAC(S,N,M):                     
     """判断S盒是否满足完全雪崩准则
     """
-    result =[[0 for i in range(N)] for j in range(M)]
-    slen = len(S)
-    for m in range(M):
-        mask = 2**m                         ##mask=00000001 00000010 00000100...
-        for i in range(slen):
-            testval = S[i]^S[i^mask]        ## i^mask 只改变1位
-            for n in range(N):
+    result =[[0 for i in range(M)] for j in range(N)]
+    # slen = len(S)
+    # 对于每一个输入比特取补，mask=00000001 00000010 00000100...
+    # 对第n位取补
+    for m in range(N):
+        mask = 2**m
+        # 对于输出比特
+        for i in range(2**M):
+            testval = S[i]^S[i^mask]
+            for n in range(M):
                 bitval = (testval>>n)&1     ##将结果右移n位，和1相与，看第m位的输出是否改变
                 result[m][n]+=bitval
         result[m].reverse()                 ##将表反向
-    for i in range(M):
-        for j in range(N):
-            result[i][j] /= slen
+    for i in range(N):
+        for j in range(M):
+            result[i][j] /=(2**M)
     # print_SAC(result,slen)                  ##将SAC表输出
     return (result)                         ##将结果和s盒长度返回，用于归一化操作
 
@@ -26,7 +29,16 @@ def print_SAC(table,len):                   ##table SAC表，len S盒的长度
         print()
 
 
-# S=[0x63,0x7c,0x77,0x7b,0xf2,0x6b,0x6f,0xc5,0x30,0x01,0x67,0x2b,0xfe,0xd7,0xab,0x76,
+
+S=[3,8,15,1,10,6,5,11,14,13,4,2,7,0,9,12]
+b=SAC(S,4,4)
+for i in b:
+    print(i)
+# S=[14,4,13,1,2,15,11,8,3,10,6,12,5,9,0,7,0,15,7,4,14,2,13,1,10,6,12,11,9,5,3,8,4,1,14,8,13,6,2,11,15,12,9,7,3,10,5,0,15,12,8,2,4,9,1,7,5,11,3,14,10,0,6,13]
+# c=SAC(S,6,4)
+# S= [7,6,0,4,2,5,1,3]
+# S=[
+#     0x63,0x7c,0x77,0x7b,0xf2,0x6b,0x6f,0xc5,0x30,0x01,0x67,0x2b,0xfe,0xd7,0xab,0x76,
 #     0xca,0x82,0xc9,0x7d,0xfa,0x59,0x47,0xf0,0xad,0xd4,0xa2,0xaf,0x9c,0xa4,0x72,0xc0,
 #     0xb7,0xfd,0x93,0x26,0x36,0x3f,0xf7,0xcc,0x34,0xa5,0xe5,0xf1,0x71,0xd8,0x31,0x15,
 #     0x04,0xc7,0x23,0xc3,0x18,0x96,0x05,0x9a,0x07,0x12,0x80,0xe2,0xeb,0x27,0xb2,0x75,
@@ -42,12 +54,6 @@ def print_SAC(table,len):                   ##table SAC表，len S盒的长度
 #     0x70,0x3e,0xb5,0x66,0x48,0x03,0xf6,0x0e,0x61,0x35,0x57,0xb9,0x86,0xc1,0x1d,0x9e,
 #     0xe1,0xf8,0x98,0x11,0x69,0xd9,0x8e,0x94,0x9b,0x1e,0x87,0xe9,0xce,0x55,0x28,0xdf,
 #     0x8c,0xa1,0x89,0x0d,0xbf,0xe6,0x42,0x68,0x41,0x99,0x2d,0x0f,0xb0,0x54,0xbb,0x16]
-#
-# a = SAC(S,8,8)
-# S=[3,8,15,1,10,6,5,11,14,13,4,2,7,0,9,12]
-# b=SAC(S,4,4)
-# S=[14,4,13,1,2,15,11,8,3,10,6,12,5,9,0,7,0,15,7,4,14,2,13,1,10,6,12,11,9,5,3,8,4,1,14,8,13,6,2,11,15,12,9,7,3,10,5,0,15,12,8,2,4,9,1,7,5,11,3,14,10,0,6,13]
-# c=SAC(S,6,4)
-S= [7,6,0,4,2,5,1,3]
-x = SAC(S,3,3)
-print_SAC(x,len(S))
+# x = SAC(S,8,8)
+# print(x)
+# print_SAC(x,len(S))
