@@ -1,0 +1,221 @@
+\documentclass{xduugthesis}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{fvextra}
+
+\numberwithin{equation}{section}
+% set up
+\xdusetup{
+    info = {
+        title = {S盒的密码学性质检测},
+        department = {网络与信息安全学院},
+        major = {信息安全专业},
+        author = {龚若涵},
+        supervisor = {王子龙},
+        % supervisor-department = {xdu},
+        class-id = {1818012},
+        student-id = {18180100149},
+        abstract = {abstract-zh.tex},
+        abstract* = {abstract-en.tex},
+        keywords = {S盒,布尔函数,设计准则,密码学},
+        keywords* = {S-box,Boolean function,Design criteria,Cryptography},
+        acknowledgements = {acknowledgements.tex}
+},
+    style = {
+        symmetric-margin = true,
+        font-type = file,
+        font-path = {/Users/grhunhun/Desktop/xdutex/XDUTeXfont},
+        cjk-font = adobe,
+        latin-font = tacn,
+        math-font = xits
+    }
+}
+\newtheorem{definition}{定义}
+
+%! 导言区结束
+\begin{document}
+\frontmatter
+\mainmatter
+\chapter{引言}
+% 引言部分包括问题的提出及其背景、国内外现状、前人所作的结果等
+S盒(Substitution Box)作为许多密码算法的核心模块，其安全强度至关重要。
+\begin{equation}
+    f(x_1,x_2,\dots ,x_n) = \mathop{\oplus}\limits_{a_i \in \mathbb{F}_2}f(a_1,a_2,\dots,a_n)x_1^{a_1}x_2^{a_2}\dots x_n^{a_n}
+\end{equation}\par
+
+
+$n\times m$的S盒本质上可以看作一个映射:$F(x) = (f_1(x), f_2(x),\dots , f_m(x)), x\in \mathbb{F}_2^n$
+相当于$m$个$n$元布尔函数的线性组合。当$n$和$m$均很大时，几乎所有S盒都是非线性的，
+但这会带来存储和运算上的困难。我们希望在较小的存储量下获得好的S盒，同时具备必要的安全性，因此有必要通过一系列代数性质，全面准确地度量S盒的密码强度。\par
+对S盒的深入研究不仅有助于迭代分组密码的设计，而且对于以非线性变换为核心的密码算法的分析有相当价值。同时，对密码学性质进行检测也可以直观地给出各项指标，有助于密码设计者快速找到满足某些特定密码需求的新的密码函数。
+这些指标主要来源于S盒的设计准则和构造方法，在本文的检测中会对如下性质进行研究：非线性度、差分均匀度、鲁棒性、平衡性、雪崩效应、扩散准则、代数次数以及轮换对称性等性质。这些性质分别对应着抵抗不同攻击方法的强度。
+例如，非线性度决定着对应密码算法抵抗线性分析攻击的能力。而S盒的安全要求取决于整个原语的设计策略，每一种安全要求对应着抵抗不同的攻击，因此，设计者需要考虑对各个性质抵抗攻击的优势进行权衡，以达到总体设计的优越。
+S盒的性质检测可以为设计者提供各个优势的参考，全面准确地度量S盒的密码学强度。\par
+另一方面，基于工具的易用性考虑，需要更简单通用的方法检测S盒各个密码学性质。尽管已有平台例如SageMath[2]，能够计算S盒的部分密码学性质，但评估并不全面，而且对于用户而言操作繁琐，使用困难。
+目前市面上仍然缺乏国产化、轻量级、评估全面的S盒分析检测工具。因此，设计一个简单通用的S盒密码学性质检测软件是十分必要的。\par
+\section{背景}
+S盒首次出现在Lucifer算法中，之后因DES的使用而广为流行[1]。S盒是许多分组密码算法中的唯一非线性部件，因此，它的密码强度决定了整个分组密码算法的安全强度。但如何全面准确地度量S盒的密码学强度，用更简单通用的方法检测S盒各个密码学性质，一直以来是密码设计与分析的研究难题。
+国内外现有的对称密码算法设计仍沿用香农1949年提出的“混淆”、“扩散”思想[3]，是指通过对称密码算法中的“混淆”和“扩散”部件使得明文、密文和密钥之问的关系异常复杂，使得攻击者无法从密文得到明文的任何信息或者从明文密文对得到密钥的任何信息。
+而S盒主要提供了分组密码算法所必须的混淆作用。许多分组加密算法都是基于S盒的密码强度，例如美国高级加密标准AES算法、韩国对称加密标准SEED算法、欧洲对称加密标准Camellia算法和中国商用密码标准SMS4算法等。
+因此，对于上述密码算法中S盒分析的研究较多。例如，文献[5]就对上述四种密码算法进行了研究探讨，分别检测了代数性质和布尔函数性质,分析各种算法抵抗差分密码分析和线性密码分析等攻击的能力。
+但是，现阶段国内外关于S盒密码学性质的研究往往只局限于某一具体的密码算法，缺乏普遍的统计分析。同时，现有的测试方法或工具通常只能完成部分密码学性质的计算，评估并不全面。\par
+\section{国内外现有工具}
+研究S盒密码学性质的平台SageMath是较为常见的一个开源数学工具。该工具包含了从线性代数、微积分，到密码学、群论、图论、数论等各种初高等数学的计算功能。而且SageMath内置了专门用于密码学计算的模块，其中sage.crypto模块可以用于评估S盒的许多重要密码学性质。
+例如，sage.crypto.Sbox模块[5]可以对任意输入的S盒进行代数处理和性质评估，比如给出S盒的差分分布表(Differential Distribution Tables DDT)，非线性度等；而sage.crypto.Sboxes模块[6]提供了许多常用的密码算法中的S盒及其密码学性质。但是，SagaMath覆盖范围并不全面，暂时还不支持部分重要的密码学性质检测，
+例如对(v,w)线性度的检测。同时，在检测大量S盒的情况下，该工具的效率并不高，检测时间比较久。除了SageMath之外, Magma[7]是一款由悉尼大学数学与统计学系计算代数学小组开发的功能强大的代数计算程序包，该软件专门解决代数系统中的数论、代数几何和代数组合学的计算问题,也包括密码学模块，对于研究S盒非常方便。\par
+
+另一个GitHub的开源项目libapn[8]主要用于研究布尔函数，包括但不限于APN函数。它可以用于计算DDT、差分均匀度、代数次数以及寻找APN函数。但是，libapn只考虑了有关抵抗差分攻击的安全属性，其他的性质并没有覆盖到。\par
+另外，还有一些函数库也可以用于对S盒密码学性质的检测。例如，R是一个可以用于统计分析的数学编程语言。其中可加载的boolfun[9]模块可以用来评估布尔函数的部分密码学属性，例如非线性度，免疫性等，同时也提供了处理布尔多项式的功能。
+VBF库(Vector Boolean Fuction Library)是由Alverez-Cubero 和 Zufiria 提出的从密码学角度进行布尔函数分析的工具，可用于计算S盒的各个密码学性质[10]。\par
+
+文献[11]中提出了一个名为PEIGEN[11]的平台，可以用来评估S盒的安全强度，并给出高效的软硬件实现。该平台集成了大部分现有工具的功能特性，检测性质范围比较全面，也使用了效率更高的搜索算法，可以为S盒的研究与设计提供系统性的参考。不过该平台主要是对n-bit S盒(3≤n≤8)进行研究，对于更大的S盒（n≥5位），它仅用于评估安全性，但还不足以完成S盒的实现和生成。但是，该平台暂时没有可用的UI界面。
+而更多的对S盒的密码学性质研究则分散在不同的方面，往往只局限于某一具体的密码体系或密码算法，或者只对抵抗某种具体攻击来进行分析。例如，文献[12]主要研究了应用在序列密码中的S盒，对欧洲NESSIE计划和eSTREAM计划进行了关注，特别是对eSTREAM计划中所涉及到的利用分组密码部件S盒构造流密码的情况进行了统计和分析。但是，现有研究中针对某一个密码学性质的专门研究非常丰富且范围广泛。\par
+
+随着密码学技术的不断发展，未来会有更多层出不穷的攻击出现。每当新的攻击方式出现，针对抵抗这些攻击的安全属性进行研究与检测是非常有必要的。例如，2011出现针对轻量级分组密码算法PRINTcipher提出的invariant subspace攻击[13]，引起了人们对于此方面的注意。而在此之前，此类性质并没有被注意到，也缺少相关的研究和检测分析。因此，随着密码学技术的发展，密码分析技术的更新，设计一个安全的密码算法需要考虑的方面会愈加复杂。
+而一个通用、用户友好且评估全面的S盒的密码学检测工具将会为密码学的研究与设计提供系统性的参考和助力。
+
+
+% 布尔函数
+\chapter{预备知识}
+\section{符号说明}
+%! 符号表格
+以下表格中列出了后文中使用的部分符号及其说明，完整的符号说明表格附在附录A。\par
+\begin{tabular}{|p{3cm}|p{11cm}|}
+\hline
+符号& 说明\\
+\hline
+$\oplus,+,\sum $ & 文中使用的$\oplus$，$+$或者$\sum$都表示$\mathbb{F}_2^n$上的加法运算，整数域$\mathbb{Z}$上的加法运算会另加说明。\\
+\hline
+$a$ & a为二元有限域上的二进制向量，$a=(a_1,a_2,\dots ,a_n)$ ，其中$a_i \in \mathbb{F}_2$是$a$的下标为$i$的坐标(\emph{coordinate})。\\
+\hline
+$a \cdot b$ & 表示两个二进制向量$a,b \in \mathbb{F}_2^n$ 的内积，其中$a \cdot b = \oplus _{i=1}^n a_i \cdot b_i$。\\
+\hline
+$wt(a)$ & 二进制向量$a \in \mathbb{F}_2^n$ 的汉明重量(\emph{Hamming weight})，定义$wt(a)=\sum_{i=1}^n a_i $。\\
+\hline
+$supp(a)$ & 二进制向量$a\in \mathbb{F}_2^n$ 满足$f(a)=1$的全体元素集合称为$f$的支撑后者开集(\emph{support})。\\
+\hline
+\end{tabular}\par
+
+\section{布尔函数}
+%! 布尔函数
+
+布尔函数(\emph{Boolean function})是许多密码系统的核心部件，其密码学性质的优劣决定着整个密码系统的安全性。\par
+以$\mathbb{F}_2^n$表示所有$n$元组$(x_1, x_2, \dots ,x_n)$，$x_i\in \mathbb{F}_2$构成的集合，$\mathbb{F}_2$表示含有两个元素的有限域。
+$f$是从$\mathbb{F}_2^n$到$\mathbb{F}_2$的映射，则称$f$是一个$n$元布尔函数，记作$f(x)$, $x\in \mathbb{F}_2^n$。
+$$
+    f: \mathbb{F}_2^n \mapsto \mathbb{F}_2
+$$
+
+由于布尔函数的定义域和值域都是有限集，那么可以把函数的对应关系一一列举出来，这样的表示方法即为真值表表示法。
+假设指定$\mathbb{F}_2^n$中元素的一个排列顺序，并将布尔函数$f$在这些元素上的取值按照顺序写入向量，
+可以得到二元有限域上的一个向量，长度为$2^n$，该向量就称为布尔函数的$f$的真值表。
+在本文中，默认将元素$x=(x_1, x_2, \dots , x_n)$中的$x_1$视作最低位，$x_n$视作最高位，并按照二进制表示的整数值递增排列，
+因此布尔函数的真值表形如：
+$$
+    (f(0,\dots ,0,0), f(0,\dots ,0,1), f(0,\dots ,1,0),\dots ,f(1,\dots ,1,1))
+$$\par
+
+\newtheorem{mytheorem}{定理}[section]
+\begin{mytheorem}[平衡性]\label{thm:balance}
+    若一个$n$元布尔函数$f$的值向量满足$wt(f)=2^{n-1}$，那么称该布尔函数是平衡(\emph{balanced})的,即
+    \begin{equation}
+        |\{x\in \mathbb{F}_2^n |f(x)=1 \}| = |\{x\in \mathbb{F}_2^n |f(x)=0 \}| = 2^{n-1} 
+    \end{equation}\par
+\end{mytheorem}\par
+
+数学上，我们还常常使用含n个变元的多项式来表示n元布尔函数:
+\begin{equation}
+    f(x_1,x_2,\dots ,x_n) = \mathop{\oplus}\limits_{a_i \in \mathbb{F}_2}f(a_1,a_2,\dots,a_n)x_1^{a_1}x_2^{a_2}\dots x_n^{a_n}
+\end{equation}\par
+
+%* 定义1
+\begin{definition}[布尔函数的代数正规型]
+n元布尔函数$f:\mathbb{F}_2^n \mapsto \mathbb{F}_2$可以如(\ref{def:BfAnf})的表示形式存在且唯一，称为$f$的代数正规型(ANF, algebraic normal form)。
+\begin{equation}
+f(x_1,x_2,\dots ,x_n) = \mathop{\oplus}\limits_{u \in F_2}\alpha_u \prod\limits_{i=1}^n x_i^{u_i}\mbox{，其中}\alpha_u \in \mathbb{F}_2 \label{def:BfAnf}
+\end{equation}
+\end{definition}\par
+
+另外，布尔函数的真值表$f$或者ANF之间能按照如下公式\eqref{anftov} 进行计算转换，其中$\alpha_u$可以视作一个由莫比乌斯反演变换todo定义的$\mathbb{F}_2^n$到$\mathbb{F}_2$的布尔函数。
+\begin{equation}
+\alpha_u =\mathop{\oplus}\limits_{x\preceq u}f(x), \quad f(x)=\mathop{\oplus}\limits_{u\preceq x} \label{anftov}
+\end{equation}
+其中，$x$满足关系$x\preceq u$当且仅当对于所有的$1 \le i \le n$，有$x_i \le u_i$。\par
+
+%*定义2
+\begin{definition}[布尔函数的代数次数]
+    非零布尔函数$f:\mathbb{F}_2^n \mapsto \mathbb{F}_2$的代数正规型中系数非零项所含有的最多变元的个数称为$f$的代数次数，记作deg(f)。
+\end{definition}\par
+布尔函数的代数次数也等于其ANF中出现在乘积项中的$x_i$的最高次数。如果
+$$
+ANF_f =\mathop{\oplus}\limits_{u \in F_2}\alpha_u \prod\limits_{i=0}^{n-1} x_i^{u_i},\quad \alpha_u \in \mathbb{F}_2
+$$\par
+则有
+\begin{equation}
+    deg(f) = max\{wt(u)|u\in \mathbb{F}_2^n,\alpha_u \ne 0 \in \mathbb{F}_2^m \enspace in \enspace ANF_f \}
+\end{equation}\par
+
+\begin{definition}[仿射函数、线性布尔函数]
+    代数次数不超过1的布尔函数称为仿射函数，将全体n元仿射函数的集合记作$A_n$。
+$$
+A_n = \{ f(x_1,x_2,\dots ,x_n) = \mathop{\oplus}\limits_{i=1}^n a_ix_i + a_0 |a_i \in F_2 \}
+$$\par
+常数项等于0的仿射函数称为线性布尔函数(linear Boolean functions)，将全体n元线性布尔函数记作$L_n$。
+$$
+L_n = \{ f(x_1,x_2,\dots ,x_n) = \mathop{\oplus}\limits_{i=1}^n a_ix_i |a_i \in F_2 \}
+$$
+\end{definition}\par
+可见,
+$$
+A_n = \{ L_n(x_1,x_2,\dots ,x_n) \oplus a_0 |a_i \in F_2 \ \}
+$$
+
+
+%! 向量值布尔函数和S盒
+
+\section{向量值布尔函数和S盒}
+
+在密码学算法中，S盒通常用一个直观的查询表格LUT(\emph{Look-Up Table})，来列出所有的输入值和对应的输出值，例如表格todo。
+但是从密码分析的角度，使用更为清晰的数学语言来描述S盒是非常重要的，也有利于对密码学性质的研究和检测。一般地，我们使用向量值布尔函数（\emph{vectorial Boolean functions}）来表示S盒。\par
+$n\times m$的S盒本质上可以看作一个映射:$F(x) = (f_1(x), f_2(x),\dots , f_m(x)), x\in \mathbb{F}_2^n$，
+相当于$m$个$n$元布尔函数的线性组合。数学上，可以把$n\times m$的S盒表示为一个$n$位输入，$m$位输出的向量值布尔函数：
+$$
+S:\mathbb{F}_2^n \mapsto \mathbb{F}_2^m
+$$
+所以也有一些文献将\emph{S(ubsitution)}盒直接称为向量值布尔函数。\par
+
+与布尔函数类似，向量值布尔函数也可以由其正规代数型唯一表示。但不同的是，向量值布尔函数的ANF的系数在$\mathbb{F}_2^m$上，而不是$\mathbb{F}_2$。
+\begin{definition}[向量值布尔函数的代数正规型]
+    向量值布尔函数$S$:$\mathbb{F}_2^n \mapsto \mathbb{F}_2^n$可以如(\ref{def:Sanf})所示n元多项式形式表示且唯一，称为$S$的代数正规型(ANF, algebraic normal form)。
+    \begin{equation}
+        S(x_1,x_2,\dots ,x_n) = \mathop{\oplus}\limits_{u \in F_2}\alpha_u \prod\limits_{i=1}^n x_i^{u_i}\mbox{，其中}\alpha_u \in \mathbb{F}_2^m \label{def:Sanf}
+    \end{equation}
+\end{definition}\par
+
+在经典的序列密码算法中常使用布尔函数作为密码组件，用来产生具有伪随机性的密钥流序列。
+但在对称密码的设计和分析中，S盒也即向量值布尔函数往往比单个布尔函数具有更为广泛的应用【rtodo】。
+例如，在分组密码和Hash函数的设计中，常使用S盒作为非线性组件来提高密码算法的混淆性，可见S盒的安全性愈加重要。
+随着密码学技术的不断发展，为了抵抗层出不穷的攻击，S盒需要满足不同的安全性要求。那么自然要衡量一个S盒的各种密码学性质是否满足设计者的安全要求。
+该过程中必须要把它当作一个整体看待，同时还要考虑到组成它的布尔函数之间的互相影响，这导致S盒和布尔函数相应的密码学性质之间有很强的联系，同时也有一些区别。
+下面对含有特殊意义的部分布尔函数作简单说明。\par
+
+\begin{definition}[S盒的坐标函数]
+    $m$位输出的S盒$S$有$m$个坐标函数(\emph{coordinates})，分别表示$S$的第i位输出，记作$S_{e_i}$。易知坐标函数$S_{e_i}$
+    是一个$n$元布尔函数：
+    $$
+    S_{e_i}:\mathbb{F}_2^n \mapsto \mathbb{F}_2^n
+    $$
+\end{definition}\par
+
+\backmatter
+\begin{appendixes}
+    \chapter{这是一个附录}
+\end{appendixes}
+\end{document}
+
+%--定义
+% \begin{definition}[]
+% \end{definition}\par
+%--Fn
+% \mathbb{F}_2^n \mapsto \mathbb{F}_2^n
+%--
