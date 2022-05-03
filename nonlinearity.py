@@ -10,7 +10,7 @@ def nonlinearity(S, N, M):
     bflc = get_all_bflc(S,N,M)
     res = []
     for i in bflc:
-        res.append(nonliearity_bf(i, N))
+        res.append(nonliearity_bf(i))
     return min(res)
 
 def main():

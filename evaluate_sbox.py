@@ -93,7 +93,8 @@ def differential_uniformity(S, N, M):
         result.append(max(list(map(abs,i))))
     return max(result)
 
-def linear_approximation_table(S,M,N):
+#22.5.1 ok
+def linear_approximation_table(S,N,M):
     """
     返回S盒的线性逼近表
     """
@@ -179,6 +180,32 @@ def boomerang_connectivity_table(S,N):
                     BCT[a][b] += 1
     return BCT
 
+def BCT_pro(s,n):
+    bct1 = []
+    for out in range(2**n):
+        # T = create_lis(n)
+        T = [[] for i in range(2**n)]
+        for x in range(2**n):
+            left  = x ^ (s.index(s[x]^out))
+            T[left].append(x)
+
+        need = []
+        col = [0 for i in range(2**n)]
+        for ele in T:
+            if len(ele) != 0:
+                need.append(ele)
+
+        for ele in need:
+            for i in range(len(ele)):
+                for j in range(len(ele)):
+                    tmp = ele[i]^ele[j]
+                    col[tmp] += 1
+        bct1.append(col)
+
+    bct = list(map(list,zip(*bct1)))
+    return bct
+
+
 def boomerang_uniformity(S,N):
     """
     返回差分均匀度
@@ -230,7 +257,8 @@ def term_number_distribution(S,N,M):
 def main():
     
     # S=[3,8,15,1,10,6,5,11,14,13,4,2,7,0,9,12]
-    S = [12,5,6,11,9,0,10,13,3,14,15,8,4,7,1,2]
+    # S = [12,5,6,11,9,0,10,13,3,14,15,8,4,7,1,2]
+    S = [14, 9, 15, 0, 13, 4, 10, 11, 1, 2, 8, 3, 7, 6, 12, 5]
     N, M = get_size(S)
 
     #* 坐标函数测试
@@ -249,8 +277,12 @@ def main():
     # print(is_bf_balanced(B))
 
     #* 是否有线性结构测试
-    print(has_linear_structure(S,N,M))
+    # print(has_linear_structure(S,N,M))
 
+    #* 计算BCT表
+    bct = BCT_pro(S,N)
+    for i in bct:
+        print(i)
     print("\nAll computing is done.")
 
 if __name__ == "__main__":
