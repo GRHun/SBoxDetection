@@ -137,7 +137,6 @@ def is_rotation_symmetric(S,N,M):
     rotation_symmetric
     报告中，S盒，如果组成它的每一个单输出布尔函数都满足轮换对称性，那么该 S 盒满足轮换对称性
     """
-    #todo 文献！！
     flag = True
     coordinate_func = get_coordinate_function(S,N,M)
     for i in coordinate_func:
@@ -181,6 +180,8 @@ def boomerang_connectivity_table(S,N):
     return BCT
 
 def BCT_pro(s,n):
+    """返回S盒的回旋镖相关表,改进pro版  
+    """
     bct1 = []
     for out in range(2**n):
         # T = create_lis(n)
