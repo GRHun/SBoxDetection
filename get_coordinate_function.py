@@ -6,7 +6,7 @@ from get_size import get_size
 def get_coordinate_function(S,N,M):
     """返回S盒的m个坐标函数coordinate function
         para: N输入， M输出
-        return: 元素为m个坐标函数(真值表)的list
+        return: 装着m个长为2^N的list，坐标函数(真值表)
     """
 
     res=[]
@@ -23,14 +23,17 @@ def get_coordinate_function(S,N,M):
 
 def main():
     
-    S=[3,8,15,1,10,6,5,11,14,13,4,2,7,0,9,12]
+    # S=[3,8,15,1,10,6,5,11,14,13,4,2,7,0,9,12]
+    # DES_S0
+    S=[14, 0, 4, 15, 13, 7, 1, 4, 2, 14, 15, 2, 11, 13, 8, 1, 3, 10, 10, 6, 6, 12, 12, 11, 5, 9, 9, 5, 0, 3, 7, 8, 4, 15, 1, 12, 14, 8, 8, 2, 13, 4, 6, 9, 2, 1, 11, 7, 15, 5, 12, 11, 9, 3, 7, 14, 3, 10, 10, 0, 5, 6, 0, 13]
+    
     N, M = get_size(S)
 
     res = get_coordinate_function(S,N,M)
 
     for i in range(len(res)):
         # print(i,"\t",ANF(res[i])[0])
-        print(i,"\t",res[i])
+        print(i," ",len(res[i]))
 
     """ test
     input:
