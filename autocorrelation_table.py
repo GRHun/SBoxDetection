@@ -1,3 +1,4 @@
+from ast import Pass
 from get_size import get_size
 from boolean_function import *
 from get_all_bflc import get_all_bflc
@@ -14,20 +15,30 @@ def autocorrelation_table(S,N,M):
         all_linear_comb.append(i)
     
     for i in all_linear_comb:
-        # print("坐标函数",i,"\tautocorrelation:",autocorrelation(i))
         res.append(autocorrelation(i))
-
-    return res
+    act = list(map(list,zip(*res)))
+    return act
     
+def list2str(table):
+    tab_str = ""
+    for i in table:
+        tab_str += str(i)
+        tab_str += "\n"
+    print(tab_str)
+        
 
 def main():
-    # S=[3,8,15,1,10,6,5,11,14,13,4,2,7,0,9,12]
-    S = [7,6,0,4,2,5,1,3]
+    S=[3,8,15,1,10,6,5,11,14,13,4,2,7,0,9,12]
+    # S = [7,6,0,4,2,5,1,3]
     N, M = get_size(S)
     act = autocorrelation_table(S,N,M)
-    act1 = list(map(list,zip(*act)))
-    for i in act1:
+
+    for i in act:
         print(i)
+
+    print("=========>\n")
+
+    list2str(act)
     
 
 
