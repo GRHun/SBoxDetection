@@ -49,7 +49,7 @@ def nonlinearity(S, N, M):
     bflc = nonzero_bflc(S,N,M)
     res = []
     for i in bflc:
-        res.append(nonliearity_bf(i, N))
+        res.append(nonliearity_bf(i))
     return min(res)
 
 def is_balanced(S, N, M):
@@ -269,12 +269,100 @@ def autocorrelation_table(S,N,M):
     act = list(map(list,zip(*res)))
     return act
 
+def choose_bf(S,string):         
+    """
+    返回所选择的S盒特定组成函数的线性组合 如返回x0+x1+x2
+    """
+    size = len(S)
+    M = int(math.log(size, 2))
+    N = len(bin(max(S)).lstrip("0b"))
+    n = 2 ** N
+    temp = string.lower().split("+")
+    choose = []
+    for i in temp:
+        choose.append(int(i.lstrip('x')))
+    num = 0
+    for i in choose:
+        num += 2**i
+    booleanfunc = []
+    for j in range(size):
+        if(bin(num&S[j]).count("1")) % 2 ==0:
+            booleanfunc.append(0)
+        else:
+            booleanfunc.append(1)
+    return (booleanfunc,num)
+
+def binary(num, length):            
+    """ 将输入数字转化成指定bits长的数据
+    """
+    binary_string_list = list(format(num, '0{}b'.format(length)))
+    return "".join(binary_string_list)
+
+def diffusion(S,N,M):
+    allcomponentbf = get_coordinate_function(S,N,M)
+    aset = set_a(N)
+    
+    halfN = (2**N)/2
+    k = []
+    for i in allcomponentbf:
+        flag=0
+        break_ = 0
+        for a in aset:
+            for ai in a:
+                temp = []
+                for j in range(2**N):
+                    temp.append(i[j^ai]^i[j])
+                if temp.count(1)!=halfN:
+                    k.append(flag)
+                    break_ = 1
+                    break
+            if break_==1:
+                break
+            flag += 1
+        else:
+            k.append(flag)
+    return min(k)
+
+def set_a(N):       #将所有向量a进行分组
+    result=[]
+    result2=[]
+    a1 = []
+    for i in range(N):
+        a1.append(2**i)
+    result.append(a1)
+    for i in range(N-1):
+        usea = result[i]
+        temp = []
+        for j in usea:
+            for k in a1:
+                tempi = binary(j^k,N)
+                if tempi.count("1")==i+2:
+                    temp.append(int(tempi,2))
+                else:
+                    pass
+        result.append(list(set(temp)))
+    return result
+
+def degree(S,N,M):
+    """返回最大代数次数和一致代数次数"""
+    bflc = nonzero_bflc(S,N,M)
+    degree_lis = []
+    for i in bflc:
+        deg = ANF(i)[1]
+        degree_lis.append(deg)
+    return max(degree_lis),min(degree_lis)
+
+
 def main():
     
     # S=[3,8,15,1,10,6,5,11,14,13,4,2,7,0,9,12]
     # S = [12,5,6,11,9,0,10,13,3,14,15,8,4,7,1,2]
     S = [14, 9, 15, 0, 13, 4, 10, 11, 1, 2, 8, 3, 7, 6, 12, 5]
     N, M = get_size(S)
+
+    #* 扩散测试、
+    # k = diffusion(S,N,M)
+    # print(k) 
 
     #* 坐标函数测试
     # res = get_coordinate_function(S,N,M)
